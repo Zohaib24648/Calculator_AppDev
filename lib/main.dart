@@ -40,7 +40,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         } else {
           _exp += value;
         }
-        
+
       } else if (value=='%') {
         String numbersAfterLastOperator = getStringAfterLastOperator(_exp);
         double? doubleValue = double.tryParse(numbersAfterLastOperator)!/100;
@@ -49,7 +49,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         _exp = _exp.substring(0, lastOperatorIndex+1) + doubleValue.toString();
 
         _displayText = doubleValue.toString();
-        
+
       } else if (value=='+/-') {
         _exp=_exp.substring(0, _exp.length-_prevValue.length)+"(-"+_prevValue+")";
         _displayText="-"+_prevValue;
@@ -66,7 +66,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
         String stringAfterLastOperator = getStringAfterLastOperator(_exp);
         _displayText=stringAfterLastOperator;
-        
+
         _prevValue =_displayText;
       }
     });
@@ -74,7 +74,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   String getStringAfterLastOperator(String expression) {
     List<String> operators = ["+", "-", "*", "/"];
-    
+
     int lastOperatorIndex = -1;
     for (int i = expression.length - 1; i >= 0; i--) {
       if (operators.contains(expression[i])) {
@@ -82,36 +82,36 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         break;
       }
     }
-    
+
     if (lastOperatorIndex == -1) {
       return expression;
     }
-    
+
     String exp = expression.substring(lastOperatorIndex + 1);
     return exp;
   }
 
   int findLastOperator(String expression) {
     List<String> operators = ["+", "-", "*", "/"];
-    
+
     for (int i = expression.length - 1; i >= 0; i--) {
       if (operators.contains(expression[i])) {
         return i;
       }
     }
-    
+
     return -1;
   }
 
   int countDots(String inputString) {
     int dotCount = 0;
-    
+
     for (int i = 0; i < inputString.length; i++) {
       if (inputString[i] == '.') {
         dotCount++;
       }
     }
-    
+
     return dotCount;
   }
 
@@ -128,14 +128,14 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     Expression exp = parser.parse(expression);
     ContextModel contextModel = ContextModel();
     double result = exp.evaluate(EvaluationType.REAL, contextModel);
-    return double.parse(result.toStringAsFixed(10));  
+    return double.parse(result.toStringAsFixed(10));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      
+
       body: Center(
         child: Column(
           children: <Widget>[
@@ -210,8 +210,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       child: const Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: EdgeInsets.only(left: 10.0), 
-                          child: Text( 
+                          padding: EdgeInsets.only(left: 10.0),
+                          child: Text(
                             '0',
                             style: TextStyle(fontSize: 30.0, color: Colors.white),
                           ),
@@ -230,30 +230,41 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     );
   }
 }
-
 class CalculatorButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
-  final double widthFactor;
   final Color color;
+  final bool isZeroButton; // Indicates if the button is the "0" button, which might need a wider appearance
 
-  const CalculatorButton({Key? key, required this.text, required this.onPressed, this.widthFactor = 1.0, required this.color}) : super(key: key);
+  const CalculatorButton({
+    Key? key,
+    required this.text,
+    required this.onPressed,
+    required this.color,
+    this.isZeroButton = false, // False by default
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Adjusting for the new parameters
     return Container(
       margin: const EdgeInsets.all(8.0),
-      child: SizedBox(
-        width: 80.0 * widthFactor,
-        height: 80.0,
-        child: FloatingActionButton(
-          onPressed: onPressed,
-          tooltip: text,
-          child: Text(
-            text,
-            style: TextStyle(color: Colors.white, fontSize: 30.0),
+      width: isZeroButton ? 160.0 : 80.0, // Wider for "0" button
+      height: 80.0,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color, // Use backgroundColor instead of primary
+          foregroundColor: Colors.white, // Use foregroundColor instead of onPrimary
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(40.0), // Makes the button circular
           ),
-          backgroundColor: color,
+          padding: const EdgeInsets.all(20), // Padding for content inside the button
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 24.0),
+          textAlign: TextAlign.center,
         ),
       ),
     );
